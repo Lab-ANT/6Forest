@@ -1,7 +1,7 @@
 import numpy as np
 import queue
 
-
+from numpy.lib.shape_base import split
 
 
 def DHC(arrs):
@@ -15,7 +15,7 @@ def DHC(arrs):
             regions_arrs.append(arrs)
             continue
         splits = maxcovering(arrs)
-
+        # splits  = leftmost(arrs)
         for s in splits:
             q.put(arrs[s])
 
@@ -25,15 +25,25 @@ def DHC(arrs):
 def maxcovering(arrs):
     Tarrs = arrs.T
     Covering = []
+    leftmost_index = -1
+    leftmost_Covering = -1
     for i in range(32):
         splits = np.bincount(Tarrs[i], minlength=16)
         if np.count_nonzero(splits) == 1:
             # fixed dimension
             Covering.append(-1)
         else:
+            if leftmost_index == -1:
+                leftmost_index = i
+                leftmost_Covering = np.sum(splits*(splits != 1))
             Covering.append(np.sum(splits*(splits != 1)))
+
     index = np.argmax(Covering)
+    if np.max(Covering) - leftmost_Covering <= index - leftmost_index:
+
+        index = leftmost_index
     splits = np.bincount(Tarrs[index], minlength=16)
+
     split_nibbles = np.argwhere(splits).reshape(-1)
 
     return [
@@ -75,3 +85,23 @@ def show_regions(arrs):
     for i in range(len(arrs)):
         print("".join([format(x, "x") for x in arrs[i]]), " ", i)
     print()
+
+
+if __name__ == "__main__":
+
+    data = np.load("./seeds.npy")
+
+    results = DHC(data)
+    for r in results:
+        show_regions(r)
+    space = 0
+    for r in results:
+        i = 0
+        address_space = []
+        Tarrs = r.T
+        for i in range(32):
+            splits = np.bincount(Tarrs[i], minlength=16)
+            if len(splits[splits > 0]) > 1:
+                i = i+1
+        space += 16**i
+    print(space)

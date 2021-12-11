@@ -111,3 +111,17 @@ def showRegionAndOutliers(region, outliers):
     for o in outliers:
         print("".join([format(x, "x") for x in o]))
     print()
+
+
+if __name__ == "__main__":
+
+    ss = ["2a0e1bc0009700000000000000000001",
+          "2a0e2400053f00000000000000000001",
+          "2a0e04090c820000021132fffee5b604",
+          "2a0e04090c8200000000000000000001",
+          "2a0e8f02212f00000000000000000001"]
+    arrs = np.array([[int(i, 16)for i in s] for s in ss]).astype("int")
+
+
+
+    OutlierDetect(arrs)
